@@ -49,7 +49,11 @@ while (true) {
       }
     } else {
       compressedResponse = Encoding.UTF8.GetBytes(startLineParts[1].Split('/')[2]);
-    }var compressedMessage =
+    }
+    encoding = encoding != null 
+                ? $"\r\nContent-Encoding: {encoding}" 
+                : "";
+    var compressedMessage =
         $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {compressedResponse.Length}{encoding}\r\n\r\n";
     byte[] responseEchoBytes =
         [..Encoding.UTF8.GetBytes(compressedMessage), ..compressedResponse];
