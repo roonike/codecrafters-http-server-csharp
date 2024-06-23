@@ -15,7 +15,13 @@ var line0parts = lines[0].Split(" "); // split first line into words
 
 var (method, path, version) = (line0parts[0], line0parts[1], line0parts[2]); // get method, path and version
 
-var response = path == "/"  ? $"HTTP/1.1 200 OK\r\n\r\n" // check for root path
-                            : $"HTTP/1.1 404 Not Found\r\n\r\n"; // otherwise return 404
+var response;
+if (path == "/") {
+    response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
+}else if (path.StartsWith("/echo/")) {
+    response = $"HTTP/1.1 200 OK\r\n\r\n{path.Substring(6)}"; // return echo 
+} else{
+    response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // otherwise return 404
+}
 
 socket.Send(Encoding.UTF8.GetBytes(response)); // send response
