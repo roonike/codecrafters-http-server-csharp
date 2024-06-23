@@ -28,7 +28,7 @@ while (true) {
     string[]? encoders = null;
         foreach (string line in lines) {
             if (line.StartsWith("Accept-Encoding:")) {
-                vals = line.split(" ");
+                string[] vals = line.split(" ");
                 encoding = vals[1];
                 encoders.Add(ValidEncoders[1, vals.Length - 1]);
                 break;
