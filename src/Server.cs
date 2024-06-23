@@ -18,7 +18,7 @@ while (true) {
 
     string line0 = lines[0]; // get first line
 
-    var (method, path, version) = line0.Split(" "); // split first line into method, path and version
+    var (method, path, version) = line0.Split(' '); // split first line into method, path and version
 
     string response;
 
