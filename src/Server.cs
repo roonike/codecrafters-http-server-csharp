@@ -30,16 +30,16 @@ while (true) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
     } else if (startLineParts[1].StartsWith("/files/")) {
-         string filename = startLineParts[1].Substring("/files/".Length); // get filename from path
-
+        var argv = Environment.GetCommandLineArgs(); // get command line arguments
+        string filename = startLineParts[1].Split('/')[1]; // get filename from path
+        var currentDir = argv[2]; // get current directory from command line arguments
+        var filePath = currentDir  + filename; // get file path from combined current directory and filename
         // read file contents
-        string filePath = Path.Combine("files", filename); // assume files directory is in the same directory as your code
-        print(filePath);
-        if (File.Exists(filePath)) {
-            string fileContents = File.ReadAllText(filePath);
+        if (File.Exists(filePath)) { // check if file exists
+            string fileContents = File.ReadAllText(filePath); // read file
             response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {fileContents.Length}\r\n\r\n{fileContents}";
-        } else {
-            response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // file not found
+        } else { // otherwise return 404
+            response = $"HTTP/1.1 404 Not Found\r\n\r\n"; 
         }
     } else{
         response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // otherwise return 404
