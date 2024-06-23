@@ -16,16 +16,14 @@ while (true) {
 
     string[] lines = request.Split("\r\n"); // split request into lines
 
-    string line0 = lines[0]; // get first line
-
-    var (method, path, version) = line0.Split(' '); // split first line into method, path and version
+    string startLineParts = lines[0].Split(' '); // split first line into method, path and version
 
     string response;
 
-    if (path == "/") {
+    if (startLineParts[1] == "/") {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
-    } else if (path.StartsWith("/echo/")) {
-        response = $"HTTP/1.1 200 OK\r\n\r\n{path.Substring(6)}"; // return echo 
+    } else if (startLineParts[1].StartsWith("/echo/")) {
+        response = $"HTTP/1.1 200 OK\r\n\r\n{startLineParts[1].Substring(6)}"; // return echo 
     } else{
         response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // otherwise return 404
     }
