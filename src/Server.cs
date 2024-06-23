@@ -38,7 +38,7 @@ while (true) {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
     } else if (startLineParts[1].StartsWith("/echo/")) {
         string message = startLineParts[1].Substring(6); // get message from path
-        if(encoding == gzip){
+        if(encoding == "gzip"){ // check if encoding is gzip
             var bytes = Encoding.UTF8.GetBytes(message);
             using var memoryStream = new MemoryStream();
             using var gzipStream = new GZipStream(memoryStream, CompressionMode.Compress);
