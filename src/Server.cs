@@ -4,12 +4,12 @@ using System.Text;
 using System.Reflection;
 
 
-TcpListener server = new TcpListener(IPAddress.Any, 4221);
-server.Start();
+TcpListener server = new TcpListener(IPAddress.Any, 4221); // create server
+server.Start(); // start server
 
-string[] ValidEncoders = ["gzip"];
+string[] ValidEncoders = ["gzip"]; // list of valid encoders  
 
-while (true) {
+while (true) { 
     TcpClient client = server.AcceptTcpClient(); // wait for client to connect
     NetworkStream stream = client.GetStream(); // get client stream 
     
@@ -25,21 +25,35 @@ while (true) {
     string response; // variable to store response string
 
     string? encoding = null;
+    string[]? encoders = null;
         foreach (string line in lines) {
             if (line.StartsWith("Accept-Encoding:")) {
-            encoding = line.Split(" ")[1];
-            break;
+                vals = line.split(" ");
+                encoding = vals[1];
+                encoders.Add(ValidEncoders[1, vals.Length - 1]);
+                break;
+            }
         }
   }
 
     if (startLineParts[1] == "/") {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
     } else if (startLineParts[1].StartsWith("/echo/")) {
+        if (encoders.Length > 1){   
+
+            foreach (string encode in encoders){
+                if (encode == "gzip"){
+                    response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\nContent-Length: {message.Length}\r\n\r\n{message}";
+                }
+            }
+        }else{
         encoding = encoding != null && ValidEncoders.Contains(encoding) // check if encoding is valid
                     ? $"\r\nContent-Encoding: {encoding}" // add encoding header
                     : ""; // if not valid, do not add header
         string message = startLineParts[1].Substring(6); // get message from path
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}{encoding}\r\n\r\n{message}"; // return echo 
+        }
+
     } else if (startLineParts[1].StartsWith("/user-agent")) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
