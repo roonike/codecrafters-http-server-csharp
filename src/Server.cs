@@ -8,19 +8,19 @@ TcpListener server = new TcpListener(IPAddress.Any, 4221);
 server.Start();
 
 while (true) {
-    TcpClient client = server.AcceptTcpClient(); // wait for client
-    NetworkStream stream = client.GetStream(); // get client stream
+    TcpClient client = server.AcceptTcpClient(); // wait for client to connect
+    NetworkStream stream = client.GetStream(); // get client stream 
     
     var responseBuffer = new byte[256]; //buffer to read response from client
-    int recievedBytes = stream.Read(responseBuffer, 0, responseBuffer.Length); // read response from client
+    int recievedBytes = stream.Read(responseBuffer, 0, responseBuffer.Length); // read response from client into buffer
 
-    string request = Encoding.UTF8.GetString(responseBuffer, 0, recievedBytes); // convert byte array to string
+    string request = Encoding.UTF8.GetString(responseBuffer, 0, recievedBytes); // convert byte array to string 
 
-    string[] lines = request.Split("\r\n"); // split request into lines
+    string[] lines = request.Split("\r\n"); // split request into lines 
 
-    string[] startLineParts = lines[0].Split(' '); // split first line into method, path and version
+    string[] startLineParts = lines[0].Split(' '); // split first line into method, path and version 
 
-    string response; // variable to store response
+    string response; // variable to store response string
 
     if (startLineParts[1] == "/") {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
@@ -32,8 +32,8 @@ while (true) {
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
     } else if (startLineParts[1].StartsWith("/files/") && startLineParts[0] == "GET") {
         var directory = Environment.GetCommandLineArgs()[2]; // get directory from command line
-        var fileName = startLineParts[1].Split("/")[2]; // get file name from path with form abc/files/fileName
-        var filePath = $"{directory}/{fileName}"; // create file path
+        string fileName = startLineParts[1].Split("/")[2]; // get file name from path with form abc/files/fileName
+        string filePath = $"{directory}/{fileName}"; // create file path
         // read file contents
         if (File.Exists(filePath)) { // check if file exists
             string fileContents = File.ReadAllText(filePath); // read file
@@ -42,11 +42,11 @@ while (true) {
             response = $"HTTP/1.1 404 Not Found\r\n\r\n"; 
         }
     }else if (startLineParts[1].StartsWith("/files/") && startLineParts[0] == "POST") { // POST request for files
-        int startIdx = startLineParts[1].IndexOf("/files/") + "/files/".Length;
         var directory = Environment.GetCommandLineArgs()[2]; // get directory from command line
         string fileName = startLineParts[1].Split("/")[2]; // get filename from path
-        string filePath = Path.Combine(directory, fileName); // create file path
-            // Read the contents of the POST request body
+        string filePath = $"{directory}/{fileName}"; // create file path
+        
+        // write to file
         string fileContents = lines[lines.Length - 1];
         File.WriteAllText(filePath, fileContents); // write to file
         response = $"HTTP/1.1 201 Created\r\n\r\n"; // return success response
