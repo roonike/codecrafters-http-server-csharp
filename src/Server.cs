@@ -39,7 +39,7 @@ while (true) {
     } else if (startLineParts[1].StartsWith("/echo/")) {
         byte[] compressedResponse = [];
     if (encoding == "gzip") {
-      byte[] messageBytes = Encoding.UTF8.GetBytes(line0Parts[1].Substring(6));
+      byte[] messageBytes = Encoding.UTF8.GetBytes(startLineParts[1].Split('/')[2]);
       using (var outputStream = new MemoryStream()) {
         using (var gZipStream =
                    new GZipStream(outputStream, CompressionMode.Compress)) {
@@ -48,7 +48,7 @@ while (true) {
         compressedResponse = outputStream.ToArray();
       }
     } else {
-      compressedResponse = Encoding.UTF8.GetBytes(line0Parts[1].Substring(6));
+      compressedResponse = Encoding.UTF8.GetBytes(startLineParts[1].Split('/')[2]);
     }var compressedMessage =
         $"{httpVer} 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {compressedResponse.Length}{encoding}\r\n\r\n";
     byte[] responseBytes =
