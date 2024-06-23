@@ -7,7 +7,7 @@ using System.Reflection;
 TcpListener server = new TcpListener(IPAddress.Any, 4221);
 server.Start();
 
-string ValidEncoders = ["gzip"];
+string[] ValidEncoders = ["gzip"];
 
 while (true) {
     TcpClient client = server.AcceptTcpClient(); // wait for client to connect
