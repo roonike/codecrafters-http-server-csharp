@@ -37,26 +37,24 @@ while (true) {
     if (startLineParts[1] == "/") {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
     } else if (startLineParts[1].StartsWith("/echo/")) {
-        string message = startLineParts[1].Split("/")[2]; // get message from path with form abc/echo/message
-
-        if (encoding == "gzip")
-        {
-            using (var memStream = new MemoryStream())
-            {
-                using (var gZip = new GZipStream(memStream, CompressionLevel.Optimal))
-                {
-                    var encodedEcho = Encoding.UTF8.GetBytes(message);
-                    gZip.Write(encodedEcho, 0, encodedEcho.Length);
-                }
-                message = memStream.ToArray();
-            }
+        byte[] compressedResponse = [];
+    if (encoding == "gzip") {
+      byte[] messageBytes = Encoding.UTF8.GetBytes(line0Parts[1].Substring(6));
+      using (var outputStream = new MemoryStream()) {
+        using (var gZipStream =
+                   new GZipStream(outputStream, CompressionMode.Compress)) {
+          gZipStream.Write(messageBytes, 0, messageBytes.Length);
         }
-
-        encoding = encoding != null && ValidEncoders.Contains(encoding)
-            ? $"\r\nContent-Encoding: {encoding}" // add encoding header
-            : ""; // if not valid, do not add header
-
-        response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}{encoding}\r\n\r\n{message}"; // return echo 
+        compressedResponse = outputStream.ToArray();
+      }
+    } else {
+      compressedResponse = Encoding.UTF8.GetBytes(line0Parts[1].Substring(6));
+    }var compressedMessage =
+        $"{httpVer} 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {compressedResponse.Length}{encoding}\r\n\r\n";
+    byte[] responseBytes =
+        [..Encoding.UTF8.GetBytes(compressedMessage), ..compressedResponse];
+    client.send(responseBytes);
+    continue;
     } else if (startLineParts[1].StartsWith("/user-agent")) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
