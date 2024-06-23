@@ -34,6 +34,7 @@ while (true) {
 
         // read file contents
         string filePath = Path.Combine("files", filename); // assume files directory is in the same directory as your code
+        print(filePath);
         if (File.Exists(filePath)) {
             string fileContents = File.ReadAllText(filePath);
             response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {fileContents.Length}\r\n\r\n{fileContents}";
