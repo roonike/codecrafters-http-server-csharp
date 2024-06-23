@@ -30,6 +30,14 @@ while (true) {
     } else if (startLineParts[1].StartsWith("/user-agent")) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
+
+    } else if (startLineParts[1].StartsWith("/accept-encoding") && startLineParts[0] == "GET") {
+        if (lines[2].Split(' ')[1] == "gzip") {
+            var message = startLineParts[1].Substring(16);
+            response = $"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}\r\n\r\n{message}";
+        } else {
+            response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n";
+        }
     } else if (startLineParts[1].StartsWith("/files/") && startLineParts[0] == "GET") {
         var directory = Environment.GetCommandLineArgs()[2]; // get directory from command line
         string fileName = startLineParts[1].Split("/")[2]; // get file name from path with form abc/files/fileName
