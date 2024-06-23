@@ -33,7 +33,7 @@ while (true) {
     } else if (startLineParts[1].StartsWith("/files/")) {
         var directory = Environment.GetCommandLineArgs()[2]; // get current directory from command line arguments
         var fileName = requestMessage.Path.Split("/")[2]; // get filename from path
-        var pathFile = $"{directory}/{fileName}"; // get file path from combined current directory and filename
+        var filePath = $"{directory}/{fileName}"; // get file path from combined current directory and filename
         // read file contents
         if (File.Exists(filePath)) { // check if file exists
             var fileContents = File.ReadAllText(filePath); // read file
