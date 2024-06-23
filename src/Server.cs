@@ -38,22 +38,24 @@ while (true) {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
     } else if (startLineParts[1].StartsWith("/echo/")) {
         string message = startLineParts[1].Split("/")[2]; // get message from path with form abc/echo/message
-        string body = message;
-         if (encoding == "gzip"){ // Check if encoding is gzip
-            byte[] compressed;
-            using (var memStream = new MemoryStream()) {
-              using (var gZip = new GZipStream(
-                         memStream, CompressionLevel.SmallestSize)) {
-                var encodedEcho = Encoding.UTF8.GetBytes(message);
-                gZip.Write(encodedEcho);
-              }
-              compressed = memStream.ToArray();
+
+        if (encoding == "gzip")
+        {
+            using (var memStream = new MemoryStream())
+            {
+                using (var gZip = new GZipStream(memStream, CompressionLevel.Optimal))
+                {
+                    var encodedEcho = Encoding.UTF8.GetBytes(message);
+                    gZip.Write(encodedEcho, 0, encodedEcho.Length);
+                }
+                message = Convert.ToBase64String(memStream.ToArray());
             }
-            body = Convert.ToBase64String(compressed);
         }
-        encoding = encoding != null && ValidEncoders.Contains(encoding) // check if encoding is valid
-                    ? $"\r\nContent-Encoding: {encoding}" // add encoding header
-                    : ""; // if not valid, do not add header
+
+        encoding = encoding != null && ValidEncoders.Contains(encoding)
+            ? $"\r\nContent-Encoding: {encoding}" // add encoding header
+            : ""; // if not valid, do not add header
+
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}{encoding}\r\n\r\n{message}"; // return echo 
     } else if (startLineParts[1].StartsWith("/user-agent")) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
