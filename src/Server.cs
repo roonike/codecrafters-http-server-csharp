@@ -32,7 +32,7 @@ while (true) {
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
     } else if (startLineParts[1].StartsWith("/files/")) {
         var directory = Environment.GetCommandLineArgs()[2]; // get directory from command line
-        var fileName = startLineParts[1].Split("/")[1]; // get file name from path it must be the second part of the path
+        var fileName = startLineParts[1].Split("/")[2]; // get file name from path it must be the second part of the path
         var filePath = $"{directory}/{fileName}"; // create file path
         // read file contents
         if (File.Exists(filePath)) { // check if file exists
