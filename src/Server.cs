@@ -51,14 +51,6 @@ while (true) {
         encoding = encoding != null && ValidEncoders.Contains(encoding) // check if encoding is valid
                     ? $"\r\nContent-Encoding: {encoding}" // add encoding header
                     : ""; // if not valid, do not add header
-        if (encoding == gzip){
-            using var memoryStream = new MemoryStream();
-            using var gzipStream = new GZipStream(memoryStream, CompressionMode.Compress);
-            using var writer = new StreamWriter(gzipStream);
-            writer.Write(message);
-            
-        
-        }
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}{encoding}\r\n\r\n{message}"; // return echo 
     } else if (startLineParts[1].StartsWith("/user-agent")) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
