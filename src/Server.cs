@@ -25,6 +25,9 @@ while (true) {
     } else if (startLineParts[1].StartsWith("/echo/")) {
         string message = startLineParts[1].Substring(6); // get message from path
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}\r\n\r\n{message}"; // return echo 
+    } else if (startLineParts[1].StartsWith("/user-agent")) {
+        string userAgent = lines[2].Split(' ')[1];// get User-Agent
+        response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
     } else{
         response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // otherwise return 404
     }
