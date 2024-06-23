@@ -4,24 +4,34 @@ using System.Text;
 
 TcpListener server = new TcpListener(IPAddress.Any, 4221);
 server.Start();
-var socket = server.AcceptSocket(); // wait for client
 
-var responseBuffer = new byte[256]; //buffer to read response from client
-int recievedBytes = socket.Receive(responseBuffer); // read response from client
+while (true) {
+    TcpClient client = server.AcceptTcpClient(); // wait for client
+    NetworkStream stream = client.GetStream();
+    
+    var responseBuffer = new byte[256]; //buffer to read response from client
+    int recievedBytes = stream.Read(responseBuffer, 0, responseBuffer.Length); // read response from client
 
-var lines = ASCIIEncoding.UTF8.GetString(responseBuffer).Split("\r\n"); // split response into lines
+    string request = Encoding.UTF8.GetString(responseBuffer, 0, recievedBytes); // convert byte array to string
 
-var line0parts = lines[0].Split(" "); // split first line into words
+    string[] lines = request.Split("\r\n"); // split request into lines
 
-var (method, path, version) = (line0parts[0], line0parts[1], line0parts[2]); // get method, path and version
+    string line0 = lines[0]; // get first line
 
-var response;
-if (path == "/") {
-    response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
-}else if (path.StartsWith("/echo/")) {
-    response = $"HTTP/1.1 200 OK\r\n\r\n{path.Substring(6)}"; // return echo 
-} else{
-    response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // otherwise return 404
+    var (method, path, version) = line0.Split(" "); // split first line into method, path and version
+
+    string response;
+
+    if (path == "/") {
+        response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
+    } else if (path.StartsWith("/echo/")) {
+        response = $"HTTP/1.1 200 OK\r\n\r\n{path.Substring(6)}"; // return echo 
+    } else{
+        response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // otherwise return 404
+    }
+
+    byte[] responseBytes = Encoding.ASCII.GetBytes(response); // convert string to byte array
+    stream.Write(responseBytes, 0, responseBytes.Length); // send response
+
+    client.Close(); // close client
 }
-
-socket.Send(Encoding.UTF8.GetBytes(response)); // send response
