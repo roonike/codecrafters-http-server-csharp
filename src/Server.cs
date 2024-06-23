@@ -14,7 +14,7 @@ while (true) {
 
     string request = Encoding.UTF8.GetString(responseBuffer, 0, recievedBytes); // convert byte array to string
 
-    var lines = request.Split(new string { "\r\n" }, StringSplitOptions.None); // split request into lines
+    string[] lines = request.Split("\r\n"); // split request into lines
 
     string line0 = lines[0]; // get first line
 
