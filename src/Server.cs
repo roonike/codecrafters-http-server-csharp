@@ -31,12 +31,12 @@ while (true) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
     } else if (startLineParts[1].StartsWith("/files/")) {
-        var directory = Environment.GetCommandLineArgs()[2]; // get current directory from command line arguments
-        var fileName = requestMessage.Path.Split("/")[2]; // get filename from path
-        var filePath = $"{directory}/{fileName}"; // get file path from combined current directory and filename
+        var directory = Environment.GetCommandLineArgs()[2];
+        var fileName = startLineParts[1].Split("/")[2];
+        var pathFile = $"{directory}/{fileName}";
         // read file contents
         if (File.Exists(filePath)) { // check if file exists
-            var fileContents = File.ReadAllText(filePath); // read file
+            string fileContents = File.ReadAllText(filePath); // read file
             response = $"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {fileContents.Length}\r\n\r\n{fileContents}";
         } else { // otherwise return 404
             response = $"HTTP/1.1 404 Not Found\r\n\r\n"; 
