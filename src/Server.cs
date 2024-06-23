@@ -50,10 +50,10 @@ while (true) {
     } else {
       compressedResponse = Encoding.UTF8.GetBytes(startLineParts[1].Split('/')[2]);
     }var compressedMessage =
-        $"{httpVer} 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {compressedResponse.Length}{encoding}\r\n\r\n";
+        $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {compressedResponse.Length}{encoding}\r\n\r\n";
     byte[] responseBytes =
         [..Encoding.UTF8.GetBytes(compressedMessage), ..compressedResponse];
-    client.send(responseBytes);
+    client.Send(responseBytes);
     continue;
     } else if (startLineParts[1].StartsWith("/user-agent")) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
