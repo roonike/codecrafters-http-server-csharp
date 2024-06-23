@@ -7,6 +7,8 @@ using System.Reflection;
 TcpListener server = new TcpListener(IPAddress.Any, 4221);
 server.Start();
 
+string ValidEncoders = ["gzip"];
+
 while (true) {
     TcpClient client = server.AcceptTcpClient(); // wait for client to connect
     NetworkStream stream = client.GetStream(); // get client stream 
@@ -22,22 +24,25 @@ while (true) {
 
     string response; // variable to store response string
 
+    string? encoding = null;
+        foreach (string line in lines) {
+            if (line.StartsWith("Accept-Encoding:")) {
+            encoding = line.Split(" ")[1];
+            break;
+        }
+  }
+
     if (startLineParts[1] == "/") {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
     } else if (startLineParts[1].StartsWith("/echo/")) {
+        encoding = encoding != null && ValidEncoders.Contains(encoding) // check if encoding is valid
+                    ? "\r\nContent-Encoding: {encoding}" // add encoding header
+                    : ""; // if not valid, do not add header
         string message = startLineParts[1].Substring(6); // get message from path
-        response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}\r\n\r\n{message}"; // return echo 
+        response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}{encoding}\r\n\r\n{message}"; // return echo 
     } else if (startLineParts[1].StartsWith("/user-agent")) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
-
-    } else if (startLineParts[1].StartsWith("/accept-encoding") && startLineParts[0] == "GET") {
-        if (lines[2].Split(' ')[1] == "gzip") {
-            var message = startLineParts[1].Substring(16);
-            response = $"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}\r\n\r\n{message}";
-        } else {
-            response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n";
-        }
     } else if (startLineParts[1].StartsWith("/files/") && startLineParts[0] == "GET") {
         var directory = Environment.GetCommandLineArgs()[2]; // get directory from command line
         string fileName = startLineParts[1].Split("/")[2]; // get file name from path with form abc/files/fileName
