@@ -48,7 +48,7 @@ while (true) {
                     var encodedEcho = Encoding.UTF8.GetBytes(message);
                     gZip.Write(encodedEcho, 0, encodedEcho.Length);
                 }
-                message = Convert.ToBase64String(memStream.ToArray());
+                message = memStream.ToArray();
             }
         }
 
