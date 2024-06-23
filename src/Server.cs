@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Reflection;
 
+
 TcpListener server = new TcpListener(IPAddress.Any, 4221);
 server.Start();
 
@@ -30,13 +31,12 @@ while (true) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
     } else if (startLineParts[1].StartsWith("/files/")) {
-        var argv = Environment.GetCommandLineArgs(); // get command line arguments
-        string filename = startLineParts[1].Split('/')[1]; // get filename from path
-        var currentDir = argv[2]; // get current directory from command line arguments
-        var filePath = currentDir  + filename; // get file path from combined current directory and filename
+        var directory = Environment.GetCommandLineArgs()[2]; // get current directory from command line arguments
+        var fileName = requestMessage.Path.Split("/")[2]; // get filename from path
+        var pathFile = $"{directory}/{fileName}"; // get file path from combined current directory and filename
         // read file contents
         if (File.Exists(filePath)) { // check if file exists
-            string fileContents = File.ReadAllText(filePath); // read file
+            var fileContents = File.ReadAllText(filePath); // read file
             response = $"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {fileContents.Length}\r\n\r\n{fileContents}";
         } else { // otherwise return 404
             response = $"HTTP/1.1 404 Not Found\r\n\r\n"; 
