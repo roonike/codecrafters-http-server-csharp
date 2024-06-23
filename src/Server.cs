@@ -39,13 +39,14 @@ while (true) {
     } else if (startLineParts[1].StartsWith("/echo/")) {
         string message = startLineParts[1].Substring(6); // get message from path
         if(encoding == "gzip"){ // check if encoding is gzip
-            var bytes = Encoding.UTF8.GetBytes(message);
-            using var memoryStream = new MemoryStream();
-            using var gzipStream = new GZipStream(memoryStream, CompressionMode.Compress);
-            gzipStream.Write(bytes, 0, bytes.Length);
-            gzipStream.Flush();
-            gzipStream.Close();
-            message = Convert.ToBase64String(memoryStream.ToArray());
+            byte[] bytes = Encoding.UTF8.GetBytes(message);
+            using (var memoryStream = new MemoryStream()){
+                using (var gzipStream = new GZipStream(memoryStream, CompressionMode.Compress)){
+                    gzipStream.Write(bytes, 0, bytes.Length);
+                }
+            }
+            var compressed = memoryStream.ToArray();
+            message = Convert.ToBase64String(compressed);
 
         }
         encoding = encoding != null && ValidEncoders.Contains(encoding) // check if encoding is valid
