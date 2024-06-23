@@ -14,16 +14,17 @@ while (true) {
 
     string request = Encoding.UTF8.GetString(responseBuffer, 0, recievedBytes); // convert byte array to string
 
-    string[] lines =
-        request.Split("\r\n");
-    string[] startLineParts = lines[0].Split(' ');
+    string[] lines = request.Split("\r\n"); // split request into lines
+
+    string[] startLineParts = lines[0].Split(' '); // split first line into method, path and version
 
     string response;
 
     if (startLineParts[1] == "/") {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
     } else if (startLineParts[1].StartsWith("/echo/")) {
-        response = $"HTTP/1.1 200 OK\r\n\r\n{startLineParts[1].Substring(6)}"; // return echo 
+        string message = startLineParts[1].Substring(6);
+        response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}\r\n\r\n{message}"; // return echo 
     } else{
         response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // otherwise return 404
     }
