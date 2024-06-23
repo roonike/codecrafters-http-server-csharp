@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Reflection;
 
 TcpListener server = new TcpListener(IPAddress.Any, 4221);
 server.Start();
@@ -28,6 +29,17 @@ while (true) {
     } else if (startLineParts[1].StartsWith("/user-agent")) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
+    } else if (startLineParts[1].StartsWith("/files/")) {
+         string filename = startLineParts[1].Substring("/files/".Length); // get filename from path
+
+        // read file contents
+        string filePath = Path.Combine("files", filename); // assume files directory is in the same directory as your code
+        if (File.Exists(filePath)) {
+            string fileContents = File.ReadAllText(filePath);
+            response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {fileContents.Length}\r\n\r\n{fileContents}";
+        } else {
+            response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // file not found
+        }
     } else{
         response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // otherwise return 404
     }
