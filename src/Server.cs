@@ -30,9 +30,9 @@ while (true) {
     } else if (startLineParts[1].StartsWith("/user-agent")) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {userAgent.Length}\r\n\r\n{userAgent}"; // return User-Agent
-    } else if (startLineParts[1].StartsWith("/files/")) {
+    } else if (startLineParts[1].StartsWith("/files/") && startLineParts[0] == "GET") {
         var directory = Environment.GetCommandLineArgs()[2]; // get directory from command line
-        var fileName = startLineParts[1].Split("/")[2]; // get file name from path it must be the second part of the path
+        var fileName = startLineParts[1].Split("/")[2]; // get file name from path with form abc/files/fileName
         var filePath = $"{directory}/{fileName}"; // create file path
         // read file contents
         if (File.Exists(filePath)) { // check if file exists
@@ -41,7 +41,16 @@ while (true) {
         } else { // otherwise return 404
             response = $"HTTP/1.1 404 Not Found\r\n\r\n"; 
         }
-    } else{
+    }else if (startLineParts[1].StartsWith("/files/") && startLineParts[0] == "POST") { // POST request for files
+        int startIdx = startLineParts[1].IndexOf("/files/") + "/files/".Length;
+        var directory = Environment.GetCommandLineArgs()[2]; // get directory from command line
+        string fileName = startLineParts[1][startIdx..]; // get filename from path
+        string filePath = Path.Combine(directory, fileName); // create file path
+            // Read the contents of the POST request body
+        string fileContents = lines[lines.Length - 1];
+        File.WriteAllText(filePath, fileContents); // write to file
+        response = $"HTTP/1.1 201 OK\r\n\r\n"; // return success response
+    } else{ // 404 for every non handled request
         response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // otherwise return 404
     }
 
