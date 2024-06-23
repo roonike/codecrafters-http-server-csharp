@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Reflection;
-
+using System.IO.Compression;
 
 TcpListener server = new TcpListener(IPAddress.Any, 4221); // create server
 server.Start(); // start server
@@ -37,10 +37,28 @@ while (true) {
     if (startLineParts[1] == "/") {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
     } else if (startLineParts[1].StartsWith("/echo/")) {
+        string message = startLineParts[1].Substring(6); // get message from path
+        if(encoding == gzip){
+            var bytes = Encoding.UTF8.GetBytes(message);
+            using var memoryStream = new MemoryStream();
+            using var gzipStream = new GZipStream(memoryStream, CompressionMode.Compress);
+            gzipStream.Write(bytes, 0, bytes.Length);
+            gzipStream.Flush();
+            gzipStream.Close();
+            message = Convert.ToBase64String(memoryStream.ToArray());
+
+        }
         encoding = encoding != null && ValidEncoders.Contains(encoding) // check if encoding is valid
                     ? $"\r\nContent-Encoding: {encoding}" // add encoding header
                     : ""; // if not valid, do not add header
-        string message = startLineParts[1].Substring(6); // get message from path
+        if (encoding == gzip){
+            using var memoryStream = new MemoryStream();
+            using var gzipStream = new GZipStream(memoryStream, CompressionMode.Compress);
+            using var writer = new StreamWriter(gzipStream);
+            writer.Write(message);
+            
+        
+        }
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}{encoding}\r\n\r\n{message}"; // return echo 
     } else if (startLineParts[1].StartsWith("/user-agent")) {
         string userAgent = lines[2].Split(' ')[1];// get User-Agent
