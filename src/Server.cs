@@ -14,9 +14,9 @@ while (true) {
 
     string request = Encoding.UTF8.GetString(responseBuffer, 0, recievedBytes); // convert byte array to string
 
-    string[] lines = request.Split("\r\n"); // split request into lines
-
-    string startLineParts = lines[0].Split(' '); // split first line into method, path and version
+    string[] lines =
+        request.Split("\r\n");
+    string[] startLineParts = lines[0].Split(' ');
 
     string response;
 
