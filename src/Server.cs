@@ -44,12 +44,12 @@ while (true) {
     }else if (startLineParts[1].StartsWith("/files/") && startLineParts[0] == "POST") { // POST request for files
         int startIdx = startLineParts[1].IndexOf("/files/") + "/files/".Length;
         var directory = Environment.GetCommandLineArgs()[2]; // get directory from command line
-        string fileName = startLineParts[1][startIdx..]; // get filename from path
+        string fileName = startLineParts[1].Split("/")[2]; // get filename from path
         string filePath = Path.Combine(directory, fileName); // create file path
             // Read the contents of the POST request body
         string fileContents = lines[lines.Length - 1];
         File.WriteAllText(filePath, fileContents); // write to file
-        response = $"HTTP/1.1 201 OK\r\n\r\n"; // return success response
+        response = $"HTTP/1.1 201 Created\r\n\r\n"; // return success response
     } else{ // 404 for every non handled request
         response = $"HTTP/1.1 404 Not Found\r\n\r\n"; // otherwise return 404
     }
