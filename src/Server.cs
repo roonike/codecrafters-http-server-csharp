@@ -37,7 +37,7 @@ while (true) {
         // read file contents
         if (File.Exists(filePath)) { // check if file exists
             string fileContents = File.ReadAllText(filePath); // read file
-            response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {fileContents.Length}\r\n\r\n{fileContents}";
+            response = $"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {fileContents.Length}\r\n\r\n{fileContents}";
         } else { // otherwise return 404
             response = $"HTTP/1.1 404 Not Found\r\n\r\n"; 
         }
