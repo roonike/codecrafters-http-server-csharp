@@ -37,18 +37,18 @@ while (true) {
     if (startLineParts[1] == "/") {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
     } else if (startLineParts[1].StartsWith("/echo/")) {
-        string message = startLineParts[1].Substring(6); // get message from path
+        string message = startLineParts[1].Split("/")[2]; // get message from path with form abc/echo/message
          if (encoding == "gzip"){ // Check if encoding is gzip
             byte[] compressed;
-                using (var memStream = new MemoryStream()) {
-                  using (var gZip = new GZipStream(
-                             memStream, CompressionLevel.SmallestSize)) {
-                    var encodedEcho = Encoding.UTF8.GetBytes(echoString);
-                    gZip.Write(encodedEcho);
-                  }
-                  compressed = memStream.ToArray();
-                }
-                message = compressed;
+            using (var memStream = new MemoryStream()) {
+              using (var gZip = new GZipStream(
+                         memStream, CompressionLevel.SmallestSize)) {
+                var encodedEcho = Encoding.UTF8.GetBytes(message);
+                gZip.Write(encodedEcho);
+              }
+              compressed = memStream.ToArray();
+            }
+            message = compressed;
         }
         encoding = encoding != null && ValidEncoders.Contains(encoding) // check if encoding is valid
                     ? $"\r\nContent-Encoding: {encoding}" // add encoding header
