@@ -36,7 +36,7 @@ while (true) {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
     } else if (startLineParts[1].StartsWith("/echo/")) {
         encoding = encoding != null && ValidEncoders.Contains(encoding) // check if encoding is valid
-                    ? "\r\nContent-Encoding: {encoding}" // add encoding header
+                    ? $"\r\nContent-Encoding: {encoding}" // add encoding header
                     : ""; // if not valid, do not add header
         string message = startLineParts[1].Substring(6); // get message from path
         response = $"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {message.Length}{encoding}\r\n\r\n{message}"; // return echo 
