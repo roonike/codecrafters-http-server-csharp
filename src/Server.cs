@@ -34,7 +34,7 @@ while (true) {
                 break;
             }
         }
-  }
+  
 
     if (startLineParts[1] == "/") {
         response = $"HTTP/1.1 200 OK\r\n\r\n"; // check for root path
